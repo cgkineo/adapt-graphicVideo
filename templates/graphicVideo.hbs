@@ -1,0 +1,12 @@
+<div{{#unless alt}} aria-hidden="true"{{/unless}} class="graphicvideo__player is-graphicvideo-nocontrols {{#if _showPauseControl}} has-graphicvideo-play-pause{{/if}}">
+  {{#if _isVideo}}
+  <video preload="meta" muted="muted" playsinline="true" {{#if _loops}}loop='loop' {{/if}}src="{{_src}}" {{#if alt}}aria-label="{{alt}}"{{/if}}></video>
+  <div class="graphicvideo__controls">
+    {{#if _showPauseControl}}
+    <button class="graphicvideo__playpause icon" type="button" aria-label="Pause"></button>
+    {{/if}}
+  </div>
+  {{else}}
+    <img src="{{_src}}" {{#if alt}}aria-label="{{alt}}"{{/if}}>
+  {{/if}}
+</div>

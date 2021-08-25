@@ -1,0 +1,121 @@
+{
+  "type": "object",
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "id": "http://jsonschema.net",
+  "required": false,
+  "properties": {
+    "pluginLocations": {
+      "type": "object",
+      "required": true,
+      "properties": {
+        "config": {
+          "type": "object"
+        },
+        "course": {
+          "type":"object",
+          "properties": {
+            "_graphicVideo": {
+              "type": "object",
+              "required": false,
+              "legend": "Graphic Video",
+              "properties": {
+                "_isEnabled": {
+                  "type": "boolean",
+                  "required": true,
+                  "default": true,
+                  "title": "Is Enabled",
+                  "inputType": "Checkbox",
+                  "validators": [],
+                  "help": "If enabled, graphics with the file extension below will be replaced by videos."
+                },
+                "_fileExtension": {
+                  "type":"string",
+                  "required":true,
+                  "default": "mp4",
+                  "title":"File extension",
+                  "enum": ["mp4", "tiff", "jpe"],
+                  "inputType": {
+                    "type": "Select",
+                    "options": ["mp4", "tiff", "jpe"]
+                  },
+                  "validators": [],
+                  "help": "Replace files with this extension only."
+                },
+                "_loops": {
+                  "type": "boolean",
+                  "required": true,
+                  "default": true,
+                  "title": "Should loop?",
+                  "inputType": "Checkbox",
+                  "validators": []
+                },
+                "_autoPlay": {
+                  "type": "boolean",
+                  "required": true,
+                  "default": true,
+                  "title": "Autoplay videos?",
+                  "inputType": "Checkbox",
+                  "validators": [],
+                  "help": "Note: Percentage onscreen determines when autoplay occurs."
+                },
+                "_onScreenPercentInviewVertical": {
+                  "type": "number",
+                  "required": true,
+                  "default": 1,
+                  "title": "Percentage on-screen",
+                  "inputType": "Number",
+                  "validators": ["required", "number"],
+                  "help": "At least this much must in view before autoplaying. Less than is considered off-screen"
+                },
+                "_offScreenPause": {
+                  "type": "boolean",
+                  "required": true,
+                  "default": true,
+                  "title": "Pause when off-screen?",
+                  "inputType": "Checkbox",
+                  "validators": []
+                },
+                "_offScreenRewind": {
+                  "type": "boolean",
+                  "required": true,
+                  "default": true,
+                  "title": "Rewind when off-screen?",
+                  "inputType": "Checkbox",
+                  "validators": []
+                },
+                "_showPauseControl": {
+                  "type": "boolean",
+                  "required": true,
+                  "default": false,
+                  "title": "Show play/pause button?",
+                  "inputType": "Checkbox",
+                  "validators": []
+                },
+                "_onPauseRewind": {
+                  "type": "boolean",
+                  "required": true,
+                  "default": false,
+                  "title": "Rewind when paused?",
+                  "inputType": "Checkbox",
+                  "validators": []
+                }
+              }
+            }
+          }
+        },
+        "contentobject": {
+          "type":"object"
+        },
+        "article": {
+          "type":"object"
+        },
+        "block": {
+          "type":"object"
+        },
+        "component": {
+          "type":"object"
+        }
+      }
+    }
+  }
+}

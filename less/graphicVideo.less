@@ -1,0 +1,69 @@
+.graphicvideo__player {
+  position: relative;
+
+  video {
+    display: block;
+    max-width: 100%;
+    min-width: 100%;
+  }
+
+  &.has-graphicvideo-play-pause {
+    cursor: pointer;
+  }
+
+  &.is-graphicvideo-playing .graphicvideo__playpause {
+    .icon-video-pause;
+  }
+
+  &.is-graphicvideo-paused .graphicvideo__playpause {
+    .icon-video-play;
+  }
+
+  &.is-graphicvideo-playing .graphicvideo__controls {
+    opacity: 0;
+  }
+
+  html:not(.touch) &.is-graphicvideo-playing:hover .graphicvideo__controls,
+  html:not(.touch) &.is-graphicvideo-playing:focus-within .graphicvideo__controls {
+    opacity: 1;
+  }
+
+  &.is-graphicvideo-paused .graphicvideo__controls {
+    transition: none;
+    opacity: 1;
+  }
+
+  &.is-graphicvideo-paused.is-graphicvideo-nocontrols .graphicvideo__controls,
+  &.is-graphicvideo-nocontrols .graphicvideo__controls {
+    transition: none;
+    opacity: 0;
+  }
+
+  .graphicvideo__controls {
+    display: flex;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 0.1em;
+    transition: opacity 0.4s ease-in-out 0.4s;
+    opacity: 0;
+
+    button {
+      background: transparent;
+
+      &.is-disabled {
+        color: rgba(16, 16, 16, 0.3);
+      }
+
+      &:before {
+        font-size: 3.5em;
+      }
+    }
+  }
+
+  .graphicvideo__playpause {
+    margin-left: auto;
+  }
+
+}
