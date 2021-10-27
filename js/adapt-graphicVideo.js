@@ -60,7 +60,7 @@ class GraphicVideo extends Backbone.Controller {
         return element.getAttribute('data-graphicvideo');
       },
       onElementRemove(div) {
-        div.videoView.remove();
+        div.videoView?.remove();
         div.videoView = null;
       }
     });
