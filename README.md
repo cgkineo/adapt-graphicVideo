@@ -12,7 +12,7 @@ The attributes listed below are used in *course.json* to configure **Adapt Graph
 
 >**\_isEnabled** (String): Defaults to `true`.
 
->**\_fileExtension** (String): The image file extension of the json file. Acceptable values are `mp4`, `tiff`, `jpe`. Defaults to `mp4`.
+>**\_fileExtension** (String): The video file extension to use. You can use files of this type in place of images in JSON files. Acceptable value is `mp4`. Defaults to `mp4`.
 
 >**\_loops** (Boolean): Controls if the video should loop. Defaults to `true`.
 
@@ -29,8 +29,6 @@ The attributes listed below are used in *course.json* to configure **Adapt Graph
 >**\_onPauseRewind** (Boolean): Rewind when the pause button is clicked. Defaults to `false`.
 
 ----------------------------
-**Version number:**  0.0.17<br />
-**Framework versions:**  >=5.8<br />
 **Author / maintainer:** Kineo<br />
 **Accessibility support:** Yes<br />
 **RTL support:** Yes<br />
