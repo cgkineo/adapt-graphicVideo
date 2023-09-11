@@ -91,7 +91,7 @@ export default class VideoView extends Backbone.View {
     this.update();
   }
 
-  goToEndAndStop() {
+  rewindAndStop() {
     this.rewind();
     this.pause();
     this.video.loop = false;
@@ -173,8 +173,7 @@ export default class VideoView extends Backbone.View {
     const htmlClasses = document.documentElement.classList;
     if (!htmlClasses.contains('a11y-no-animations')) return;
 
-    // Stop on last frame
-    this.goToEndAndStop();
+    this.rewindAndStop();
   }
 
   get shouldRender() {
