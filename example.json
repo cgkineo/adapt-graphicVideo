@@ -1,14 +1,32 @@
-    // course.json
-    {
-        "_graphicVideo": {
-            "_isEnabled": true,
-            "_fileExtension": "mp4",
-            "_loops": true,
-            "_autoPlay": true,
-            "_onScreenPercentInviewVertical": 1,
-            "_offScreenPause": true,
-            "_offScreenRewind": true,
-            "_showPauseControl": false,
-            "_onPauseRewind": false
-        }
+// course.json
+{
+    "_graphicVideo": {
+        "_isEnabled": true,
+        "_fileExtension": "mp4",
+        "_loops": true,
+        "_autoPlay": true,
+        "_onScreenPercentInviewVertical": 1,
+        "_offScreenPause": true,
+        "_offScreenRewind": true,
+        "_showPauseControl": false,
+        "_onPauseRewind": false
     }
+}
+
+// components.json - Example using a video file in a Graphic component
+{
+    "_id": "c-05",
+    "_parentId": "b-05",
+    "_type": "component",
+    "_component": "graphic",
+    "_classes": "",
+    "_layout": "left",
+    "title": "Graphic component",
+    "displayTitle": "",
+    "body": "",
+    "instruction": "",
+    "_graphic": {
+        "large": "course/en/video/media.mp4",
+        "small": "course/en/video/media.mp4"
+    }
+}
