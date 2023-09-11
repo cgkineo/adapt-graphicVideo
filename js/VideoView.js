@@ -1,5 +1,7 @@
 import Adapt from 'core/js/adapt';
-import _ from 'underscore';
+import a11y from 'core/js/a11y';
+import device from 'core/js/device';
+import documentModifications from 'core/js/DOMElementModifications';
 
 export default class VideoView extends Backbone.View {
 
@@ -11,7 +13,7 @@ export default class VideoView extends Backbone.View {
   }
 
   initialize() {
-    _.bindAll(this, 'render', 'onScreenChange', 'update', 'onDataReady');
+    _.bindAll(this, 'render', 'onScreenChange', 'update', 'onDataReady', 'checkVisua11y');
     this.config = Adapt.course.get('_graphicVideo');
     const fileExtension = this.config._fileExtension || 'mp4';
     this._rex = new RegExp(`\\.${fileExtension}`, 'i');
@@ -30,6 +32,7 @@ export default class VideoView extends Backbone.View {
   setUpListeners() {
     this.$el.on('onscreen', this.onScreenChange);
     this.listenTo(Adapt, 'device:resize', this.render);
+    documentModifications.on('changed:html', this.checkVisua11y);
   }
 
   onScreenChange(event, { onscreen, percentInview } = {}) {
@@ -88,10 +91,21 @@ export default class VideoView extends Backbone.View {
     this.update();
   }
 
+  goToEndAndStop() {
+    this.rewind();
+    this.pause();
+    this.video.loop = false;
+    this.video.autoplay = false;
+
+    const config = Adapt.course.get('_graphicVideo');
+    config._loops = false;
+    config._autoPlay = false;
+  }
+
   update() {
     this.$player.toggleClass('is-graphicvideo-playing', !this.video.paused);
     this.$player.toggleClass('is-graphicvideo-paused', this.video.paused);
-    Adapt.a11y.toggleEnabled(this.$player.find('.graphicvideo__rewind'), this.video.currentTime !== 0);
+    a11y.toggleEnabled(this.$player.find('.graphicvideo__rewind'), this.video.currentTime !== 0);
   }
 
   render() {
@@ -155,6 +169,14 @@ export default class VideoView extends Backbone.View {
     this.video.pause();
   }
 
+  checkVisua11y() {
+    const htmlClasses = document.documentElement.classList;
+    if (!htmlClasses.contains('a11y-no-animations')) return;
+
+    // Stop on last frame
+    this.goToEndAndStop();
+  }
+
   get shouldRender() {
     return (this._renderedSrc !== this.src);
   }
@@ -163,7 +185,7 @@ export default class VideoView extends Backbone.View {
     const small = this.$el.attr('data-small');
     const large = this.$el.attr('data-large');
     const src = this.$el.attr('src');
-    return src || (Adapt.device.screenSize === 'small' ? small : large) || large;
+    return src || (device.screenSize === 'small' ? small : large) || large;
   }
 
   get alt() {
