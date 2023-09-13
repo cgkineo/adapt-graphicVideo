@@ -13,7 +13,7 @@ export default class VideoView extends Backbone.View {
   }
 
   initialize() {
-    _.bindAll(this, 'render', 'onScreenChange', 'update', 'onDataReady', 'checkVisua11y');
+    _.bindAll(this, 'render', 'onScreenChange', 'update', 'onDataReady');
     this.config = Adapt.course.get('_graphicVideo');
     const fileExtension = this.config._fileExtension || 'mp4';
     this._rex = new RegExp(`\\.${fileExtension}`, 'i');
