@@ -32,7 +32,7 @@ export default class VideoView extends Backbone.View {
   setUpListeners() {
     this.$el.on('onscreen', this.onScreenChange);
     this.listenTo(Adapt, 'device:resize', this.render);
-    documentModifications.on('changed:html', this.checkVisua11y);
+    this.listenTo(documentModifications, 'changed:html', this.checkVisua11y);
   }
 
   onScreenChange(event, { onscreen, percentInview } = {}) {
