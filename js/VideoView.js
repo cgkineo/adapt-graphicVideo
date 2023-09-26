@@ -18,10 +18,25 @@ export default class VideoView extends Backbone.View {
     const fileExtension = this.config._fileExtension || 'mp4';
     this._rex = new RegExp(`\\.${fileExtension}`, 'i');
     this.hasUserPaused = false;
+    this.isPausedWithVisua11y = this.hasA11yNoAnimations;
     this.isDataReady = false;
+    this.checkOriginalValues();
     this.setUpAttributeChangeObserver();
     this.setUpListeners();
     this.render();
+  }
+
+  checkOriginalValues() {
+    if (this.config._originalLoops === undefined) {
+      this.config._originalLoops = this.config._loops;
+    }
+    if (this.config._originalAutoPlay === undefined) {
+      this.config._originalAutoPlay = this.config._autoPlay;
+    }
+    if (!this.isPausedWithVisua11y) {
+      this.config._loops = this.config._originalLoops;
+      this.config._autoPlay = this.config._originalAutoPlay;
+    }
   }
 
   setUpAttributeChangeObserver() {
@@ -96,10 +111,16 @@ export default class VideoView extends Backbone.View {
     this.pause();
     this.video.loop = false;
     this.video.autoplay = false;
+    this.config._loops = false;
+    this.config._autoPlay = false;
+  }
 
-    const config = Adapt.course.get('_graphicVideo');
-    config._loops = false;
-    config._autoPlay = false;
+  restart() {
+    this.video.loop = this.config._originalLoops;
+    this.video.autoplay = this.config._originalAutoPlay;
+    this.config._loops = this.config._originalLoops;
+    this.config._autoPlay = this.config._originalAutoPlay;
+    this.play();
   }
 
   update() {
@@ -170,10 +191,23 @@ export default class VideoView extends Backbone.View {
   }
 
   checkVisua11y() {
-    const htmlClasses = document.documentElement.classList;
-    if (!htmlClasses.contains('a11y-no-animations')) return;
+    if (!this.hasA11yNoAnimations && !this.isPausedWithVisua11y) return;
 
+    // Check if animation should start playing again
+    if (this.isPausedWithVisua11y && !this.hasA11yNoAnimations) {
+      this.isPausedWithVisua11y = false;
+      this.restart();
+      return;
+    }
+
+    // Stop on last frame
+    this.isPausedWithVisua11y = true;
     this.rewindAndStop();
+  }
+
+  get hasA11yNoAnimations() {
+    const htmlClasses = document.documentElement.classList;
+    return htmlClasses.contains('a11y-no-animations');
   }
 
   get shouldRender() {
