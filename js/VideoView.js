@@ -20,23 +20,27 @@ export default class VideoView extends Backbone.View {
     this.hasUserPaused = false;
     this.isPausedWithVisua11y = this.hasA11yNoAnimations;
     this.isDataReady = false;
-    this.checkOriginalValues();
+    this.setUpOriginalValues();
+    this.resetToOriginalValues();
     this.setUpAttributeChangeObserver();
     this.setUpListeners();
     this.render();
   }
 
-  checkOriginalValues() {
+  setUpOriginalValues() {
     if (this.config._originalLoops === undefined) {
       this.config._originalLoops = this.config._loops;
     }
     if (this.config._originalAutoPlay === undefined) {
       this.config._originalAutoPlay = this.config._autoPlay;
     }
-    if (!this.isPausedWithVisua11y) {
-      this.config._loops = this.config._originalLoops;
-      this.config._autoPlay = this.config._originalAutoPlay;
-    }
+  }
+
+  resetToOriginalValues() {
+    if (this.isPausedWithVisua11y) { return; }
+
+    this.config._loops = this.config._originalLoops;
+    this.config._autoPlay = this.config._originalAutoPlay;
   }
 
   setUpAttributeChangeObserver() {
