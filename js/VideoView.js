@@ -130,7 +130,8 @@ export default class VideoView extends Backbone.View {
   update() {
     this.$player.toggleClass('is-graphicvideo-playing', !this.video.paused);
     this.$player.toggleClass('is-graphicvideo-paused', this.video.paused);
-    a11y.toggleEnabled(this.$player.find('.graphicvideo__rewind'), this.video.currentTime !== 0);
+    const isNotAtStart = (this.video.currentTime !== 0);
+    a11y.toggleEnabled(this.$player.find('.graphicvideo__rewind'), isNotAtStart);
   }
 
   render() {
