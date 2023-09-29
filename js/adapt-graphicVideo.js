@@ -1,4 +1,5 @@
 import Adapt from 'core/js/adapt';
+import wait from 'core/js/wait';
 import { DOMModifier } from './injector';
 import VideoView from './VideoView';
 
@@ -45,14 +46,14 @@ class GraphicVideo extends Backbone.Controller {
           id: img.id
         });
         if (waitFor === 0) {
-          Adapt.wait.begin();
+          wait.begin();
         }
         waitFor++;
         div.videoView = new VideoView({ el: div });
         div.videoView.on('ready', () => {
           waitFor--;
           if (waitFor === 0) {
-            Adapt.wait.end();
+            wait.end();
           }
         });
       },

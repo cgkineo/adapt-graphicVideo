@@ -5,7 +5,7 @@
     "url": "git://github.com/cgkineo/adapt-graphicVideo.git"
   },
   "version": "1.0.0",
-  "framework": ">=5.14",
+  "framework": ">=5.31.27",
   "homepage": "https://github.com/cgkineo/adapt-graphicVideo",
   "issues": "https://github.com/cgkineo/adapt-graphicVideo/issues",
   "extension": "graphicVideo",

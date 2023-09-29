@@ -1,5 +1,7 @@
 import Adapt from 'core/js/adapt';
-import _ from 'underscore';
+import a11y from 'core/js/a11y';
+import device from 'core/js/device';
+import documentModifications from 'core/js/DOMElementModifications';
 
 export default class VideoView extends Backbone.View {
 
@@ -16,10 +18,29 @@ export default class VideoView extends Backbone.View {
     const fileExtension = this.config._fileExtension || 'mp4';
     this._rex = new RegExp(`\\.${fileExtension}`, 'i');
     this.hasUserPaused = false;
+    this.isPausedWithVisua11y = this.hasA11yNoAnimations;
     this.isDataReady = false;
+    this.setUpOriginalValues();
+    this.resetToOriginalValues();
     this.setUpAttributeChangeObserver();
     this.setUpListeners();
     this.render();
+  }
+
+  setUpOriginalValues() {
+    if (this.config._originalLoops === undefined) {
+      this.config._originalLoops = this.config._loops;
+    }
+    if (this.config._originalAutoPlay === undefined) {
+      this.config._originalAutoPlay = this.config._autoPlay;
+    }
+  }
+
+  resetToOriginalValues() {
+    if (this.isPausedWithVisua11y) { return; }
+
+    this.config._loops = this.config._originalLoops;
+    this.config._autoPlay = this.config._originalAutoPlay;
   }
 
   setUpAttributeChangeObserver() {
@@ -30,6 +51,7 @@ export default class VideoView extends Backbone.View {
   setUpListeners() {
     this.$el.on('onscreen', this.onScreenChange);
     this.listenTo(Adapt, 'device:resize', this.render);
+    this.listenTo(documentModifications, 'changed:html', this.checkVisua11y);
   }
 
   onScreenChange(event, { onscreen, percentInview } = {}) {
@@ -88,10 +110,28 @@ export default class VideoView extends Backbone.View {
     this.update();
   }
 
+  rewindAndStop() {
+    this.rewind();
+    this.pause();
+    this.video.loop = false;
+    this.video.autoplay = false;
+    this.config._loops = false;
+    this.config._autoPlay = false;
+  }
+
+  restart() {
+    this.video.loop = this.config._originalLoops;
+    this.video.autoplay = this.config._originalAutoPlay;
+    this.config._loops = this.config._originalLoops;
+    this.config._autoPlay = this.config._originalAutoPlay;
+    this.play();
+  }
+
   update() {
     this.$player.toggleClass('is-graphicvideo-playing', !this.video.paused);
     this.$player.toggleClass('is-graphicvideo-paused', this.video.paused);
-    Adapt.a11y.toggleEnabled(this.$player.find('.graphicvideo__rewind'), this.video.currentTime !== 0);
+    const isNotAtStart = (this.video.currentTime !== 0);
+    a11y.toggleEnabled(this.$player.find('.graphicvideo__rewind'), isNotAtStart);
   }
 
   render() {
@@ -155,6 +195,26 @@ export default class VideoView extends Backbone.View {
     this.video.pause();
   }
 
+  checkVisua11y() {
+    if (!this.hasA11yNoAnimations && !this.isPausedWithVisua11y) return;
+
+    // Check if animation should start playing again
+    if (this.isPausedWithVisua11y && !this.hasA11yNoAnimations) {
+      this.isPausedWithVisua11y = false;
+      this.restart();
+      return;
+    }
+
+    // Stop on last frame
+    this.isPausedWithVisua11y = true;
+    this.rewindAndStop();
+  }
+
+  get hasA11yNoAnimations() {
+    const htmlClasses = document.documentElement.classList;
+    return htmlClasses.contains('a11y-no-animations');
+  }
+
   get shouldRender() {
     return (this._renderedSrc !== this.src);
   }
@@ -163,7 +223,7 @@ export default class VideoView extends Backbone.View {
     const small = this.$el.attr('data-small');
     const large = this.$el.attr('data-large');
     const src = this.$el.attr('src');
-    return src || (Adapt.device.screenSize === 'small' ? small : large) || large;
+    return src || (device.screenSize === 'small' ? small : large) || large;
   }
 
   get alt() {
