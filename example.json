@@ -2,7 +2,7 @@
 {
     "_graphicVideo": {
         "_isEnabled": true,
-        "_fileExtension": "mp4",
+        "_fileExtension": "mp4,avif",
         "_loops": true,
         "_autoPlay": true,
         "_onScreenPercentInviewVertical": 1,

@@ -12,7 +12,7 @@ The attributes listed below are used in *course.json* to configure **Adapt Graph
 
 >**\_isEnabled** (String): Defaults to `true`.
 
->**\_fileExtension** (String): The video file extension to use. You can use files of this type in place of images in JSON files. Acceptable value is `mp4`. Defaults to `mp4`.
+>**\_fileExtension** (String): The video file extension to use. You can use files of this type in place of images in JSON files. Acceptable value is `mp4`, `avif`. Defaults to `avif` for AAT image picker compatibility.
 
 >**\_loops** (Boolean): Controls if the video should loop. Defaults to `true`.
 

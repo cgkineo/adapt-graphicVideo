@@ -31,12 +31,12 @@
                 "_fileExtension": {
                   "type":"string",
                   "required":true,
-                  "default": "mp4",
+                  "default": "avif",
                   "title":"File extension",
-                  "enum": ["mp4", "tiff", "jpe"],
+                  "enum": ["mp4", "avif"],
                   "inputType": {
                     "type": "Select",
-                    "options": ["mp4", "tiff", "jpe"]
+                    "options": ["mp4", "avif"]
                   },
                   "validators": [],
                   "help": "Replace files with this extension only."
