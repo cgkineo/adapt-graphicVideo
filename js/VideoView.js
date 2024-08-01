@@ -2,7 +2,7 @@ import Adapt from 'core/js/adapt';
 import a11y from 'core/js/a11y';
 import device from 'core/js/device';
 import documentModifications from 'core/js/DOMElementModifications';
-import MP4Box from './mp4box';
+import MSE from './MSE';
 
 export default class VideoView extends Backbone.View {
 
@@ -161,123 +161,19 @@ export default class VideoView extends Backbone.View {
 
   async createVideo() {
     if (!this.video) return;
-    if (!window.MediaSource) {
-      console.error('No Media Source API available');
-      return;
-    }
-    function parseRange(response) {
-      const range = response.headers.get('content-range');
-      if (!range) {
-        const length = response.headers.get('content-length');
-        return {
-          type: 'all',
-          start: 0,
-          end: length - 1,
-          length
-        };
-      }
-      const type = range.split(' ')[0];
-      const length = parseInt(range.split(' ')[1].split('/')[1]);
-      const start = parseInt(range.split(' ')[1].split('/')[0].split('-')[0]);
-      const end = parseInt(range.split(' ')[1].split('/')[0].split('-')[1]);
-      return {
-        type,
-        start,
-        end,
-        length
-      };
-    }
-    const bufferSeconds = 4;
-    let bufferAmount = (1024 * 512); // 0.128mb
     const video = this.video;
-    video.crossOrigin = 'anonymous';
-    const mediaSource = new MediaSource();
-    this.video.src = window.URL.createObjectURL(mediaSource);
-    video.load();
-    await new Promise(resolve => mediaSource.addEventListener('sourceopen', resolve));
-    let start = 0;
-    let end = Number.MAX_SAFE_INTEGER;
-    const response = await fetch(this.src, {
-      headers: {
-        Range: `bytes=${start}-${start + bufferAmount - 1}`
-      }
-    });
-    const range = parseRange(response);
-    end = range.length;
-    const buffer = await response.arrayBuffer();
-    start += bufferAmount;
-    buffer.fileStart = 0;
-    const info = await new Promise((resolve, reject) => {
-      const mp4boxfile = MP4Box.createFile();
-      mp4boxfile.onError = reject;
-      mp4boxfile.onReady = resolve;
-      mp4boxfile.appendBuffer(buffer);
-      // todo: add to info buffer until returned
-    });
-    const mimeCodec = info.mime;
-    if (!window.MediaSource.isTypeSupported(mimeCodec)) {
-      console.error(`Video codec not supported: ${mimeCodec} for ${this.src}`);
-      return;
-    }
-    let isLoadingMore = false;
-    const sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
     this.video.addEventListener('loadedmetadata', this.onDataReady);
-    this.video.addEventListener('timeupdate', () => {
-      checkMore();
-      this.update();
-    });
-    const checkMore = () => {
-      if (isLoadingMore) return;
-      isLoadingMore = true;
-      if (![...mediaSource.activeSourceBuffers].every(buf => !buf.updating)) {
-        isLoadingMore = false;
-        return;
-      }
-      const until = mediaSource.activeSourceBuffers[0].buffered.length === 0
-        ? 0
-        : mediaSource.activeSourceBuffers[0].buffered.end(0);
-      if (until > 0) {
-        const estimateBytesPerSecond = (start / until);
-        bufferAmount = Math.round(estimateBytesPerSecond * bufferSeconds);
-      }
-      if (video.currentTime + bufferSeconds < until) {
-        isLoadingMore = false;
-        return;
-      }
-      loadMore();
-      return true;
-    };
-    const loadMore = async () => {
-      if (start + bufferAmount >= end) {
-        bufferAmount = (end - start);
-        if (bufferAmount < 0) bufferAmount = 0;
-      }
-      if (!bufferAmount) {
-        mediaSource.endOfStream();
-        return;
-      }
-      const response = await fetch(this.src, {
-        headers: {
-          Range: `bytes=${start}-${start + bufferAmount - 1}`
-        }
+    this.video.addEventListener('timeupdate', this.update);
+    // safari cannot process invalid mime types, which you get
+    // from a server when renaming a video from .mp4 to .avif
+    if (device.browser === 'safari') {
+      return new MSE({
+        video,
+        src: this.src
       });
-      const range = parseRange(response);
-      end = range.length;
-      const buffer = await response.arrayBuffer();
-      start += bufferAmount;
-      sourceBuffer.appendBuffer(buffer);
-    };
-    this.video.addEventListener('stalled', checkMore);
-    sourceBuffer.addEventListener('updateend', () => {
-      isLoadingMore = false;
-      if (checkMore()) return;
-      if (start === 0) video.load();
-    });
-    sourceBuffer.addEventListener('error', () => {
-      throw new Error(`Error loading: ${this.src}`);
-    });
-    sourceBuffer.appendBuffer(buffer);
-
+    }
+    // assign the source straight to the tag for all other browsers
+    video.src = this.src;
   }
 
   onDataReady() {
