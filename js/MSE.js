@@ -28,6 +28,14 @@ class DiscreteRange {
   }
 }
 
+/**
+ * Uses MediaSource extensions to load file data of any mime type into
+ * a video tag in safari on ipados, osx and ios
+ * https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API
+ * https://www.radiantmediaplayer.com/blog/at-last-safari-17.1-now-brings-the-new-managed-media-source-api-to-iphone.html
+ * https://github.com/w3c/media-source/issues/320
+ *
+ */
 class MSE {
   constructor({
     video,
