@@ -37,6 +37,7 @@ class MSE {
   }) {
     this.loadData = this.loadData.bind(this);
     this.onVideoTimeUpdate = this.onVideoTimeUpdate.bind(this);
+    this.onMetaInfoError = this.onMetaInfoError.bind(this);
     this.onMetaInfoReady = this.onMetaInfoReady.bind(this);
     this.onMediaBufferUpdated = this.onMediaBufferUpdated.bind(this);
     this.onMediaBufferErrored = this.onMediaBufferErrored.bind(this);
@@ -46,9 +47,9 @@ class MSE {
     this.src = src;
     this.bufferSeconds = bufferSeconds;
     this.bufferLength = bufferLength;
+    this.contentLength = Number.MAX_SAFE_INTEGER;
     this.metaInfoBuffers = [];
     this.metaInfo = null;
-    this.contentLength = Number.MAX_SAFE_INTEGER;
     this.isLoading = false;
     this.isStreaming = false;
     // configure for safari
