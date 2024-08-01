@@ -36,10 +36,10 @@ class MSE {
     bufferLength = (1024 * 512) // 0.5mb
   }) {
     this.loadData = this.loadData.bind(this);
-    this.onTimeUpdate = this.onTimeUpdate.bind(this);
+    this.onVideoTimeUpdate = this.onVideoTimeUpdate.bind(this);
     this.onMetaInfoReady = this.onMetaInfoReady.bind(this);
-    this.onBufferUpdated = this.onBufferUpdated.bind(this);
-    this.onBufferErrored = this.onBufferErrored.bind(this);
+    this.onMediaBufferUpdated = this.onMediaBufferUpdated.bind(this);
+    this.onMediaBufferErrored = this.onMediaBufferErrored.bind(this);
     this.onStartStreaming = this.onStartStreaming.bind(this);
     this.onEndStreaming = this.onEndStreaming.bind(this);
     this.video = video;
@@ -67,15 +67,15 @@ class MSE {
     this.mediaSource.addEventListener('startstreaming', this.onStartStreaming);
     this.mediaSource.addEventListener('endstreaming', this.onEndStreaming);
     // video tag plumbing
-    this.video.addEventListener('timeupdate', this.onTimeUpdate);
-    this.video.addEventListener('stalled', this.onTimeUpdate);
+    this.video.addEventListener('timeupdate', this.onVideoTimeUpdate);
+    this.video.addEventListener('stalled', this.onVideoTimeUpdate);
     this.video.src = window.URL.createObjectURL(this.mediaSource);
   }
 
   async loadData() {
     if (this.isLoading) return;
     this.isLoading = true;
-    this.lastByteRange = this.getNextMissingByteRange();
+    this.lastByteRange = this.getNextByteRange();
     if (!this.lastByteRange?.length) return;
     // fetch the video data using the correct range headers
     const response = await fetch(this.src, { headers: { Range: `bytes=${this.lastByteRange.start}-${this.lastByteRange.end}` } });
@@ -86,7 +86,11 @@ class MSE {
     this.addToMediaBuffer(buffer);
   }
 
-  getNextMissingByteRange() {
+  get hasMetaInfo() {
+    return this.metaInfo;
+  }
+
+  getNextByteRange() {
     // shortcut to initial range
     if (!this.lastByteRange) return new DiscreteRange(0, null, this.bufferLength);
     // go to start of next byte range
@@ -101,7 +105,7 @@ class MSE {
   addToMetaBuffer(buffer) {
     // mp4box requires this
     buffer.fileStart = 0;
-    // save the buffer loading into the video later
+    // save the buffer for loading into the video later
     this.metaInfoBuffers.push(buffer.slice(0));
     // add to mp4box for analysis
     this.metaSource.appendBuffer(buffer);
@@ -111,10 +115,6 @@ class MSE {
   addToMediaBuffer(buffer) {
     // add to media source
     this.sourceBuffer.appendBuffer(buffer);
-  }
-
-  get hasMetaInfo() {
-    return this.metaInfo;
   }
 
   onMetaInfoError(err) {
@@ -136,26 +136,26 @@ class MSE {
   initializeMediaBuffer() {
     // setup the media source buffer
     this.sourceBuffer = this.mediaSource.addSourceBuffer(this.mimeCodec);
-    this.sourceBuffer.addEventListener('updateend', this.onBufferUpdated);
-    this.sourceBuffer.addEventListener('error', this.onBufferErrored);
+    this.sourceBuffer.addEventListener('updateend', this.onMediaBufferUpdated);
+    this.sourceBuffer.addEventListener('error', this.onMediaBufferErrored);
     // add meta buffers to media player
     this.metaInfoBuffers.forEach(buffer => this.sourceBuffer.appendBuffer(buffer));
     this.metaInfoBuffers.length = 0;
     this.metaSource.flush();
   }
 
-  onBufferUpdated() {
+  onMediaBufferUpdated() {
     if (!this.isLoading) return;
     this.isLoading = false;
     this.mediaSource.endOfStream();
-    this.onTimeUpdate();
+    this.onVideoTimeUpdate();
   }
 
-  onBufferErrored() {
+  onMediaBufferErrored() {
     throw new Error(`Error loading data: ${this.src} using mime codec: ${this.mimeCodec}`);
   }
 
-  onTimeUpdate() {
+  onVideoTimeUpdate() {
     if (this.isMediaSourceUpdating) return;
     this.estimateBufferLength();
     const shouldLoadMore = this.isStreaming || this.isBufferTooSmall;
@@ -191,7 +191,7 @@ class MSE {
   onStartStreaming() {
     /** ManagedMediaSource on safari only */
     this.isStreaming = true;
-    this.onTimeUpdate();
+    this.onVideoTimeUpdate();
   }
 
   onEndStreaming() {
