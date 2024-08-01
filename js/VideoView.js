@@ -166,7 +166,8 @@ export default class VideoView extends Backbone.View {
     this.video.addEventListener('timeupdate', this.update);
     // safari cannot process invalid mime types, which you get
     // from a server when renaming a video from .mp4 to .avif
-    if (device.browser === 'safari') {
+    const isSafariMimeTypeIssue = (device.browser === 'safari' && !/\.mp4/i.test(this.src));
+    if (isSafariMimeTypeIssue) {
       return new MSE({
         video,
         src: this.src
