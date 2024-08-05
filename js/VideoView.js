@@ -2,6 +2,7 @@ import Adapt from 'core/js/adapt';
 import a11y from 'core/js/a11y';
 import device from 'core/js/device';
 import documentModifications from 'core/js/DOMElementModifications';
+import MSE from './MSE';
 
 export default class VideoView extends Backbone.View {
 
@@ -15,8 +16,8 @@ export default class VideoView extends Backbone.View {
   initialize() {
     _.bindAll(this, 'render', 'onScreenChange', 'update', 'onDataReady');
     this.config = Adapt.course.get('_graphicVideo');
-    const fileExtension = this.config._fileExtension || 'mp4';
-    this._rex = new RegExp(`\\.${fileExtension}`, 'i');
+    this.fileExtensions = this.config._fileExtension?.split(',') || ['mp4', 'avif'];
+    this._rex = new RegExp(`\\.(${this.fileExtensions.map(ext => ext.trim()).join('|')})`, 'i');
     this.hasUserPaused = false;
     this.isPausedWithVisua11y = this.hasA11yNoAnimations;
     this.isDataReady = false;
@@ -158,10 +159,23 @@ export default class VideoView extends Backbone.View {
     return this.$player.find('video')[0];
   }
 
-  createVideo() {
+  async createVideo() {
     if (!this.video) return;
+    const video = this.video;
     this.video.addEventListener('loadedmetadata', this.onDataReady);
     this.video.addEventListener('timeupdate', this.update);
+    // safari cannot process invalid mime types, which you get
+    // from a server when renaming a video from .mp4 to .avif
+    const isSafariMimeTypeIssue = (device.browser === 'safari' && !/\.mp4/i.test(this.src));
+    if (isSafariMimeTypeIssue) {
+      this.mse = new MSE({
+        video,
+        src: this.src
+      });
+      return;
+    }
+    // assign the source straight to the tag for all other browsers
+    video.src = this.src;
   }
 
   onDataReady() {
@@ -233,6 +247,7 @@ export default class VideoView extends Backbone.View {
   }
 
   remove() {
+    this.mse?.destroy();
     this.destroyVideo();
     super.remove();
   }

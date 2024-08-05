@@ -27,8 +27,8 @@ class GraphicVideo extends Backbone.Controller {
 
   setUp() {
     const config = Adapt.course.get('_graphicVideo');
-    const fileExtension = config._fileExtension || 'svgz';
-    const rex = new RegExp(`\\.${fileExtension}`, 'i');
+    const fileExtensions = config._fileExtension?.split(',') || ['mp4', 'avif'];
+    const rex = new RegExp(`\\.(${fileExtensions.map(ext => ext.trim()).join('|')})`, 'i');
     let waitFor = 0;
     new DOMModifier({
       elementAddFilter(element) {
