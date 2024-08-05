@@ -208,6 +208,22 @@ class MSE {
     this.isStreaming = false;
   }
 
+  destroy() {
+    try {
+      this.mediaSource?.removeEventListener('sourceopen', this.loadData);
+      this.mediaSource?.removeEventListener('startstreaming', this.onStartStreaming);
+      this.mediaSource?.removeEventListener('endstreaming', this.onEndStreaming);
+      this.video?.removeEventListener('timeupdate', this.onVideoTimeUpdate);
+      this.video?.removeEventListener('stalled', this.onVideoTimeUpdate);
+      this.sourceBuffer?.removeEventListener('updateend', this.onMediaBufferUpdated);
+      this.sourceBuffer?.removeEventListener('error', this.onMediaBufferErrored);
+      this.mediaSource?.removeSourceBuffer(this.sourceBuffer);
+      this.mediaSource = null;
+      this.video = null;
+      this.sourceBuffer = null;
+    } catch (err) {}
+  }
+
   static get MediaSource() {
     const MediaSource = window.ManagedMediaSource || window.MediaSource;
     if (!MediaSource) throw new Error('No Media Source API available');

@@ -168,10 +168,11 @@ export default class VideoView extends Backbone.View {
     // from a server when renaming a video from .mp4 to .avif
     const isSafariMimeTypeIssue = (device.browser === 'safari' && !/\.mp4/i.test(this.src));
     if (isSafariMimeTypeIssue) {
-      return new MSE({
+      this.mse = new MSE({
         video,
         src: this.src
       });
+      return;
     }
     // assign the source straight to the tag for all other browsers
     video.src = this.src;
@@ -246,6 +247,7 @@ export default class VideoView extends Backbone.View {
   }
 
   remove() {
+    this.mse?.destroy();
     this.destroyVideo();
     super.remove();
   }
